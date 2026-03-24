@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculator verificare statică Alumil M7</title>
+  <style>
+    :root { --bg:#f6f7fb; --card:#fff; --text:#1f2937; --muted:#6b7280; --line:#d1d5db; --accent:#2563eb; --ok:#166534; --bad:#b91c1c; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: Arial, Helvetica, sans-serif; background:var(--bg); color:var(--text); }
+    .wrap { max-width: 1180px; margin: 24px auto; padding: 0 16px; }
+    h1 { font-size: 28px; margin: 0 0 8px; }
+    .sub { color: var(--muted); margin-bottom: 20px; }
+    .grid { display:grid; grid-template-columns: 1.2fr 1fr; gap:16px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px; box-shadow:0 4px 14px rgba(0,0,0,0.04); }
+    .card h2 { margin:0 0 12px; font-size:20px; }
+    .row { display:grid; grid-template-columns: 1fr 180px; gap:12px; align-items:center; margin-bottom:10px; }
+    .row small { color:var(--muted); display:block; margin-top:4px; }
+    label { font-weight:600; }
+    input, select { width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:10px; font-size:14px; }
+    .section-title { margin:16px 0 8px; padding-top:8px; border-top:1px solid #e5e7eb; font-weight:700; }
+    .results { display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
+    table { width:100%; border-collapse: collapse; }
+    th, td { padding:10px 8px; border-bottom:1px solid #e5e7eb; text-align:left; font-size:14px; }
+    th { color:var(--muted); font-weight:700; }
+    .pass { color:var(--ok); font-weight:700; }
+    .fail { color:var(--bad); font-weight:700; }
+    .formula { background:#f9fafb; border:1px dashed #d1d5db; padding:10px 12px; border-radius:12px; margin-top:10px; font-size:14px; }
+    .footer { color:var(--muted); font-size:13px; margin-top:14px; }
+    .badge { display:inline-block; padding:4px 8px; border-radius:999px; background:#eff6ff; color:#1d4ed8; font-size:12px; font-weight:700; }
+    @media (max-width: 920px) { .grid, .results { grid-template-columns: 1fr; } .row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Calculator verificare statică Alumil M7</h1>
+    <div class="sub">Completezi doar datele de intrare. Formulele sunt deja puse pentru montant, riglă și greutate geam.</div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Date de intrare</h2>
+        <div class="row">
+          <label for="profil">Profil</label>
+          <select id="profil">
+            <option value="M70015" selected>M70015</option>
+            <option value="M70004">M70004</option>
+            <option value="custom">Alt profil</option>
+          </select>
+        </div>
+
+        <div class="row">
+          <label for="Icm4">Moment de inerție I [cm⁴]<small>Din catalogul profilului.</small></label>
+          <input id="Icm4" type="number" step="0.01" value="70.9" />
+        </div>
+        <div class="row">
+          <label for="depth">Adâncime profil [mm]<small>Folosită pentru estimarea modulului de rezistență W ≈ I / (h/2).</small></label>
+          <input id="depth" type="number" step="0.1" value="101" />
+        </div>
+
+        <div class="section-title">Vânt</div>
+        <div class="row">
+          <label for="pwind">Presiune vânt p [kN/m²]</label>
+          <input id="pwind" type="number" step="0.01" value="1.00" />
+        </div>
+        <div class="row">
+          <label for="allowStress">Tensiune admisă orientativă [N/mm²]</label>
+          <input id="allowStress" type="number" step="1" value="160" />
+        </div>
+        <div class="row">
+          <label for="deflLimit">Limită săgeată</label>
+          <select id="deflLimit">
+            <option value="200">L/200</option>
+            <option value="250">L/250</option>
+            <option value="300" selected>L/300</option>
+          </select>
+        </div>
+
+        <div class="section-title">Montant</div>
+        <div class="row">
+          <label for="Lm">Lungime calcul montant L [mm]</label>
+          <input id="Lm" type="number" step="1" value="1950" />
+        </div>
+        <div class="row">
+          <label for="bt">Lățime tributară montant bt [mm]</label>
+          <input id="bt" type="number" step="1" value="1025" />
+        </div>
+
+        <div class="section-title">Riglă</div>
+        <div class="row">
+          <label for="Lr">Lungime calcul riglă L [mm]</label>
+          <input id="Lr" type="number" step="1" value="1025" />
+        </div>
+        <div class="row">
+          <label for="ht">Înălțime tributară riglă ht [mm]</label>
+          <input id="ht" type="number" step="1" value="1950" />
+        </div>
+
+        <div class="section-title">Geam termopan</div>
+        <div class="row">
+          <label for="glass1">Foaie sticlă 1 [mm]</label>
+          <input id="glass1" type="number" step="0.1" value="4" />
+        </div>
+        <div class="row">
+          <label for="gap">Spațiu [mm]</label>
+          <input id="gap" type="number" step="0.1" value="20" />
+        </div>
+        <div class="row">
+          <label for="glass2">Foaie sticlă 2 [mm]</label>
+          <input id="glass2" type="number" step="0.1" value="4" />
+        </div>
+        <div class="row">
+          <label for="gw">Lățime geam [mm]</label>
+          <input id="gw" type="number" step="1" value="1005" />
+        </div>
+        <div class="row">
+          <label for="gh">Înălțime geam [mm]</label>
+          <input id="gh" type="number" step="1" value="1930" />
+        </div>
+      </div>
+
+      <div class="results">
+        <div class="card">
+          <h2>Rezultate montant <span class="badge">automat</span></h2>
+          <table>
+            <tr><th>Mărime</th><th>Valoare</th></tr>
+            <tr><td>Încărcare liniară q</td><td id="m_q"></td></tr>
+            <tr><td>Moment maxim M</td><td id="m_M"></td></tr>
+            <tr><td>Săgeată f</td><td id="m_f"></td></tr>
+            <tr><td>Limită admisă</td><td id="m_flim"></td></tr>
+            <tr><td>Verificare săgeată</td><td id="m_fok"></td></tr>
+            <tr><td>Modul rezistență estimat W</td><td id="m_W"></td></tr>
+            <tr><td>Tensiune estimată σ</td><td id="m_sigma"></td></tr>
+            <tr><td>Verificare tensiune</td><td id="m_sok"></td></tr>
+          </table>
+          <div class="formula">
+            q = p · bt; &nbsp; M = qL² / 8; &nbsp; f = 5qL⁴ / 384EI; &nbsp; σ = M / W
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Rezultate riglă <span class="badge">automat</span></h2>
+          <table>
+            <tr><th>Mărime</th><th>Valoare</th></tr>
+            <tr><td>Încărcare liniară q</td><td id="r_q"></td></tr>
+            <tr><td>Moment maxim M</td><td id="r_M"></td></tr>
+            <tr><td>Săgeată f</td><td id="r_f"></td></tr>
+            <tr><td>Limită admisă</td><td id="r_flim"></td></tr>
+            <tr><td>Verificare săgeată</td><td id="r_fok"></td></tr>
+            <tr><td>Modul rezistență estimat W</td><td id="r_W"></td></tr>
+            <tr><td>Tensiune estimată σ</td><td id="r_sigma"></td></tr>
+            <tr><td>Verificare tensiune</td><td id="r_sok"></td></tr>
+          </table>
+          <div class="formula">
+            q = p · ht; &nbsp; M = qL² / 8; &nbsp; f = 5qL⁴ / 384EI; &nbsp; σ = M / W
+          </div>
+        </div>
+
+        <div class="card" style="grid-column: 1 / -1;">
+          <h2>Greutate geam <span class="badge">automat</span></h2>
+          <table>
+            <tr><th>Mărime</th><th>Valoare</th></tr>
+            <tr><td>Compoziție</td><td id="g_comp"></td></tr>
+            <tr><td>Greutate specifică geam</td><td id="g_spec"></td></tr>
+            <tr><td>Arie geam</td><td id="g_area"></td></tr>
+            <tr><td>Greutate totală geam</td><td id="g_totalkg"></td></tr>
+            <tr><td>Forță gravitațională geam</td><td id="g_totalkn"></td></tr>
+          </table>
+          <div class="formula">
+            g = (t1 + t2) · 2.5 kg/m²/mm; &nbsp; G = g · A
+          </div>
+          <div class="footer">Notă: calculul este orientativ pentru pre-dimensionare. Verificarea finală trebuie corelată cu vântul normat, schema reală de reazem și datele exacte din catalog.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const profiles = {
+      M70015: { Icm4: 70.9, depth: 101 },
+      M70004: { Icm4: 72.0, depth: 101 }
+    };
+
+    const ids = ["profil","Icm4","depth","pwind","allowStress","deflLimit","Lm","bt","Lr","ht","glass1","gap","glass2","gw","gh"];
+    ids.forEach(id => document.getElementById(id).addEventListener('input', calc));
+    document.getElementById('profil').addEventListener('change', e => {
+      const p = profiles[e.target.value];
+      if (p) {
+        document.getElementById('Icm4').value = p.Icm4;
+        document.getElementById('depth').value = p.depth;
+      }
+      calc();
+    });
+
+    function fmt(n, d=2) {
+      return Number(n).toLocaleString('ro-RO', { minimumFractionDigits:d, maximumFractionDigits:d });
+    }
+
+    function set(id, text, cls='') {
+      const el = document.getElementById(id);
+      el.textContent = text;
+      el.className = cls;
+    }
+
+    function calcBeam(p_kNm2, trib_mm, L_mm, I_cm4, depth_mm, limitDiv, allowStress, prefix) {
+      const E = 70000; // N/mm2
+      const q_N_per_mm = p_kNm2 * (trib_mm / 1000); // 1 kN/m = 1 N/mm
+      const M_kNm = q_N_per_mm * (L_mm/1000) * (L_mm/1000) / 8;
+      const I_mm4 = I_cm4 * 10000;
+      const f_mm = (5 * q_N_per_mm * Math.pow(L_mm,4)) / (384 * E * I_mm4);
+      const flim = L_mm / limitDiv;
+      const W_mm3 = I_mm4 / (depth_mm / 2);
+      const sigma = (M_kNm * 1e6) / W_mm3;
+
+      set(prefix + '_q', `${fmt(q_N_per_mm,3)} kN/m`);
+      set(prefix + '_M', `${fmt(M_kNm,3)} kNm`);
+      set(prefix + '_f', `${fmt(f_mm,2)} mm`);
+      set(prefix + '_flim', `${fmt(flim,2)} mm (${ "L/" + limitDiv})`);
+      set(prefix + '_fok', f_mm <= flim ? 'OK' : 'NU', f_mm <= flim ? 'pass' : 'fail');
+      set(prefix + '_W', `${fmt(W_mm3,0)} mm³`);
+      set(prefix + '_sigma', `${fmt(sigma,2)} N/mm²`);
+      set(prefix + '_sok', sigma <= allowStress ? 'OK' : 'NU', sigma <= allowStress ? 'pass' : 'fail');
+    }
+
+    function calc() {
+      const Icm4 = parseFloat(document.getElementById('Icm4').value) || 0;
+      const depth = parseFloat(document.getElementById('depth').value) || 0;
+      const pwind = parseFloat(document.getElementById('pwind').value) || 0;
+      const allowStress = parseFloat(document.getElementById('allowStress').value) || 160;
+      const deflLimit = parseFloat(document.getElementById('deflLimit').value) || 300;
+      const Lm = parseFloat(document.getElementById('Lm').value) || 0;
+      const bt = parseFloat(document.getElementById('bt').value) || 0;
+      const Lr = parseFloat(document.getElementById('Lr').value) || 0;
+      const ht = parseFloat(document.getElementById('ht').value) || 0;
+      const glass1 = parseFloat(document.getElementById('glass1').value) || 0;
+      const glass2 = parseFloat(document.getElementById('glass2').value) || 0;
+      const gap = parseFloat(document.getElementById('gap').value) || 0;
+      const gw = parseFloat(document.getElementById('gw').value) || 0;
+      const gh = parseFloat(document.getElementById('gh').value) || 0;
+
+      calcBeam(pwind, bt, Lm, Icm4, depth, deflLimit, allowStress, 'm');
+      calcBeam(pwind, ht, Lr, Icm4, depth, deflLimit, allowStress, 'r');
+
+      const gspec = (glass1 + glass2) * 2.5;
+      const area = (gw/1000) * (gh/1000);
+      const gtotkg = gspec * area;
+      const gtotkn = gtotkg * 9.81 / 1000;
+      set('g_comp', `${glass1}-${gap}-${glass2}`);
+      set('g_spec', `${fmt(gspec,2)} kg/m²`);
+      set('g_area', `${fmt(area,3)} m²`);
+      set('g_totalkg', `${fmt(gtotkg,2)} kg`);
+      set('g_totalkn', `${fmt(gtotkn,3)} kN`);
+    }
+
+    calc();
+  </script>
+</body>
+</html>
